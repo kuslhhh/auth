@@ -85,13 +85,12 @@ app.get("/todos", auth, async function (req, res) {
 
     const todos = await todoModel.find({
         userId,
-    });
+    }).populate("userId").exec();
 
     const id = todos.map((todo) => todo._id);
     const title = todos.map((todo) => todo.title);
 
     res.json({
-        _id: id,
         title,
     });
 });
