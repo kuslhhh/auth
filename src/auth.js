@@ -1,22 +1,22 @@
-const jwt = require("jsonwebtoken")
-const JWT_SECRET = "kushrueee"
+const jwt = require("jsonwebtoken");
+const JWT_SECRET = "s3cret";
 
-function auth (req, res, next) {
+function auth(req, res, next) {
     const token = req.headers.token;
 
-    const decodeData = jwt.verify(token, JWT_SECRET);
+    const response = jwt.verify(token, JWT_SECRET);
 
-    if(decodeData) {
-        req.userId = decodeData.id;
+    if (response) {
+        req.userId = response.id;
         next();
-    } else{
+    } else {
         res.status(403).json({
-            message: "Incorrect credentials"
+            message: "Incorrect creds"
         })
     }
 }
 
-module.export = {
+module.exports = {
     auth,
     JWT_SECRET
 }

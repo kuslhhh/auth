@@ -1,95 +1,105 @@
-const express = require("express");
-const {userModel, todoModel} = require("./db");
-const jwt = require("jsonwebtoken");
-const mongoose  = require("mongoose");
-const JWT_SECRET = "asdasd123@123"
+require("dotenv").config();
 
-mongoose.connect("mongodb+srv://kuslhhh:S1MK5OaVN0HRnuN8@kushhh.yobcs.mongodb.net/todoist")
+const express = require("express");
+const { auth, JWT_SECRET } = require("./auth");
+const jwt = require("jsonwebtoken");
+
+const bcrypt = require("bcrypt");
+
+const { userModel, todoModel } = require("./db");
+const mongoose = require("mongoose");
+mongoose.connect(
+    "mongodb+srv://kuslhhh:S1MK5OaVN0HRnuN8@kushhh.yobcs.mongodb.net/todoist"
+);
+
 const app = express();
 app.use(express.json());
 
-app.post("/signup", async (req, res ) => {
-    const email = req.body.email;
-    const password = req.body.password;
-    const name = req.body.name;
-    
-    await userModel.create({
-        email: email,
-        password: password,
-        name: name
-    })
+app.post("/signup", async function (req, res) {
+    try {
+        const email = req.body.email;
+        const password = req.body.password;
+        const name = req.body.name;
 
-    res.json({
-        message: "You are logged in"
-    })
-})
-app.post("/signin", async (req, res ) => {
-    const email = req.body.email;
-    const password = req.body.password;
+        const hashedp = await bcrypt.hash(password, 10);
 
-    const user = await userModel.findOne({
-        email: email,
-        password: password,
-    })
+        await userModel.create({
+            email: email,
+            password: hashedp,
+            name: name
+        });
 
-    console.log(user);
-    
-
-    if(user){
-        const token = jwt.sign({
-            id: user._id
-        }, JWT_SECRET);
-
-        res.json({
-            token: token,
-        })
-    } else{
-        res.status(403).json({
-          message: "Invalid credentials"  
-        })
+        return res.json({ message: "You are signed up" });  // Return after sending the response
+    } catch (e) {
+        return res.status(500).json({ message: "Error signing up", error: e.message });  // Return after sending the response
     }
+});
 
-})
-app.post("/todo", auth, (req, res ) => {
+
+app.post("/signin", async function (req, res) {
+    try {
+        const email = req.body.email;
+        const password = req.body.password;
+
+        const response = await userModel.findOne({ email: email });
+
+        // Check if user exists
+        if (!response) {
+            return res.status(403).json({ message: "User not found" }); // Return after sending the response
+        }
+
+        // Compare hashed passwords
+        const passwordMatch = await bcrypt.compare(password, response.password);
+
+        if (passwordMatch) {
+            const token = jwt.sign({ id: response._id.toString() }, JWT_SECRET);
+            return res.json({ token }); // Return after sending the response
+        } else {
+            return res.status(403).json({ message: "Incorrect creds" }); // Return after sending the response
+        }
+    } catch (e) {
+        return res
+            .status(500)
+            .json({ message: "Error signing in", error: e.message }); // Return after sending the response
+    }
+});
+
+app.post("/todo", auth, async function (req, res) {
     const userId = req.userId;
     const title = req.body.title;
+    const done = req.body.done;
 
-    todoModel.create({
+    await todoModel.create({
+        userId,
         title,
-        userId
-    })
+        done,
+    });
 
     res.json({
-        userId: userId,  
-    })
-})
-app.get("/todos", auth, (req, res ) => {
+        message: "Todo created",
+    });
+});
+
+app.get("/todos", auth, async function (req, res) {
     const userId = req.userId;
-    const users =  todoModel.find({
-        userId: userId
-    })
-    
+
+    const todos = await todoModel.find({
+        userId,
+    });
+
+    const id = todos.map((todo) => todo._id);
+    const title = todos.map((todo) => todo.title);
+
     res.json({
-        todos  
-    })
-})
+        _id: id,
+        title,
+    });
+});
 
-function auth (req, res, next) {
-    const token = req.headers.token;
+const port = process.env.PORT || 3000;
 
-    const decodeData = jwt.verify(token, JWT_SECRET);
+app.port = process.env.PORT || 3000;
 
-    if(decodeData) {
-        req.userId = decodeData.id;
-        next();
-    } else{
-        res.status(403).json({
-            message: "Incorrect credentials"
-        })
-    }
-}
-
-
-
-app.listen(3000);
-
+app.listen(process.env.PORT, () => {
+    console.log(`App listening on port ${port}`);
+});
