@@ -1,8 +1,8 @@
 const express = require("express");
 const {userModel, todoModel} = require("./db");
 const jwt = require("jsonwebtoken");
-const  mongoose  = require("mongoose");
-const   JWT_SECRET = "asdasd123@123"
+const mongoose  = require("mongoose");
+const JWT_SECRET = "asdasd123@123"
 
 mongoose.connect("mongodb+srv://kuslhhh:S1MK5OaVN0HRnuN8@kushhh.yobcs.mongodb.net/todoist")
 const app = express();
@@ -91,4 +91,5 @@ function auth (req, res, next) {
 
 
 
-app.listen(3000)
+app.listen(3000);
+
