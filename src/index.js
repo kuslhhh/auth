@@ -29,9 +29,9 @@ app.post("/signup", async function (req, res) {
             name: name
         });
 
-        return res.json({ message: "You are signed up" });  // Return after sending the response
+        return res.json({ message: "You are signed up" });  
     } catch (e) {
-        return res.status(500).json({ message: "Error signing up", error: e.message });  // Return after sending the response
+        return res.status(500).json({ message: "Error signing up", error: e.message });  
     }
 });
 
@@ -43,24 +43,24 @@ app.post("/signin", async function (req, res) {
 
         const response = await userModel.findOne({ email: email });
 
-        // Check if user exists
+        
         if (!response) {
-            return res.status(403).json({ message: "User not found" }); // Return after sending the response
+            return res.status(403).json({ message: "User not found" }); 
         }
 
-        // Compare hashed passwords
+        
         const passwordMatch = await bcrypt.compare(password, response.password);
 
         if (passwordMatch) {
             const token = jwt.sign({ id: response._id.toString() }, JWT_SECRET);
-            return res.json({ token }); // Return after sending the response
+            return res.json({ token }); 
         } else {
-            return res.status(403).json({ message: "Incorrect creds" }); // Return after sending the response
+            return res.status(403).json({ message: "Incorrect creds" });        
         }
     } catch (e) {
         return res
             .status(500)
-            .json({ message: "Error signing in", error: e.message }); // Return after sending the response
+            .json({ message: "Error signing in", error: e.message }); 
     }
 });
 
