@@ -5,6 +5,7 @@ const { auth, JWT_SECRET } = require("./auth");
 const jwt = require("jsonwebtoken");
 
 const bcrypt = require("bcrypt");
+const { z } = require("zod");
 
 const { userModel, todoModel } = require("./db");
 const mongoose = require("mongoose");
@@ -16,7 +17,23 @@ const app = express();
 app.use(express.json());
 
 app.post("/signup", async function (req, res) {
-    try {
+    
+        const requireBody = z.object({
+            email: z.string().min(3).max(100).email(),
+            name : z.string().min(3).max(50),
+            password: z.string().min(3).max(30).regex(/[A-Z]/),
+        })
+
+        const parsedData = requireBody.safeParse(req.body);
+
+        if(!parsedData.success) {
+            res.json({
+                message: "Invalid data",
+                error: parsedData.error
+            })
+            return;
+        }
+
         const email = req.body.email;
         const password = req.body.password;
         const name = req.body.name;
@@ -30,9 +47,6 @@ app.post("/signup", async function (req, res) {
         });
 
         return res.json({ message: "You are signed up" });  
-    } catch (e) {
-        return res.status(500).json({ message: "Error signing up", error: e.message });  
-    }
 });
 
 

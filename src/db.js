@@ -10,7 +10,7 @@ const User = new schema ({
 
 const todo = new schema({
     title: String,
-    done: String,
+    done: Boolean,
     userId: { type: schema.Types.ObjectId, ref: "users"}
 })
 
