@@ -10,7 +10,7 @@ const { z } = require("zod");
 const { userModel, todoModel } = require("./db");
 const mongoose = require("mongoose");
 mongoose.connect(
-    "mongodb+srv://kuslhhh:S1MK5OaVN0HRnuN8@kushhh.yobcs.mongodb.net/todoist"
+    ""
 );
 
 const app = express();
