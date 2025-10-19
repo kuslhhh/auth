@@ -1,7 +1,10 @@
 import type { Request, Response } from "express";
+import jwt from "jsonwebtoken"
 import type { RegisterInput, LoginInput } from "../../lib/zodSchema"
 import { loginSchema, registerSchema, } from "../../lib/zodSchema"
-import { loginUser, registerUser } from "../authService/service";
+import { loginUser, refreshTokens, registerUser } from "../authService/service";
+import { verifyRefreshToken } from "../../lib/jwt";
+import { prisma } from "../../lib/prisma";
 
 export const register = async (req: Request, res: Response) => {
    try {
@@ -48,5 +51,47 @@ export const login = async (req: Request, res: Response) => {
       })
    } catch (e: any) {
       res.status(400).json({ error: e.message })
+   }
+}
+
+export const refresh = async (req: Request, res: Response) => {
+   try {
+      const token = req.cookies.refreshToken;
+      if (!token) return res.status(401).json({ error: "No refresh token" })
+
+      const { newAccess, newRefresh } = await refreshTokens(token)
+
+      res.cookie("refreshToken", newRefresh, {
+         httpOnly: true,
+         secure: process.env.NODE_ENV === "production",
+         sameSite: "lax",
+         maxAge: 1000 * 60 * 24 * 30
+      })
+
+      res.json({ accessToken: newAccess })
+   } catch (e: any) {
+      res.status(401).json({ error: e.message })
+   }
+}
+
+export const logout = async (req: Request, res: Response) => {
+   try {
+      const token = req.cookies.refreshToken
+      if (token) {
+         const decoded = verifyRefreshToken(token) as jwt.JwtPayload;
+
+         await prisma.refreshToken.updateMany({
+            where: {
+               userId: decoded.sub as string,
+            },
+            data: {
+               revoked: true
+            }
+         })
+      }
+      res.clearCookie("refreshToken")
+      res.json({ message: "Logged Out" })
+   } catch (e: any) {
+      res.status(401).json({ error: e.message })
    }
 }
