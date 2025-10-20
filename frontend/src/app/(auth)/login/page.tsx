@@ -25,12 +25,40 @@ export default function () {
    };
 
    return (
-      <div>
-         <h1 className='text-2xl'>Login Form</h1>
+      <div 
+         className='bg-[#1a1a1a] p-4 rounded-t-2xl border-b-2 border-white'
+      >
          <form
             onSubmit={handleSubmit}
+            className='flex flex-col text-center'
          >
+            <h1 className='text-2xl'>Login Form</h1>
+            {error && (
+               <p>{error}</p>
+            )}
+            <input
+               className='border-b-2 border-white outline-0 '
+               type="email"
+               placeholder='Email'
+               value={email}
+               onChange={(e) => setEmail(e.target.value)}
+               required
+            />
+            
+            <input
+               type="password"
+               placeholder='Password'
+               value={password}
+               onChange={(e) => setPassword(e.target.value)}
+               required
+            />
 
+            <button 
+               type='submit'
+            >
+               Login
+            </button>
+            
 
          </form>
       </div>
