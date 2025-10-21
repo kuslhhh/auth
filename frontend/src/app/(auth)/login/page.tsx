@@ -18,14 +18,14 @@ export default function () {
 
       try {
          await register(email, password, name)
-         router.push("/login")
+         router.push("/dashboard")
       } catch {
          setError("Registration failed")
       }
    };
 
    return (
-      <div 
+      <div
          className='bg-[#1a1a1a] p-4 rounded-t-2xl border-b-2 border-white'
       >
          <form
@@ -44,7 +44,7 @@ export default function () {
                onChange={(e) => setEmail(e.target.value)}
                required
             />
-            
+
             <input
                type="password"
                placeholder='Password'
@@ -53,13 +53,18 @@ export default function () {
                required
             />
 
-            <button 
+            <button
                type='submit'
             >
                Login
             </button>
-            
 
+            <p>
+               Dont have an account?
+               <a href="/register">
+                  register
+               </a>
+            </p>
          </form>
       </div>
    )
