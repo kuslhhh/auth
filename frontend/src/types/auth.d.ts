@@ -1,7 +1,10 @@
 export type User = {
    id: string,
    email: string,
-   role: "USER" | "ADMIN"
+   name?: string,
+   role: "USER" | "ADMIN",
+   emailVerified: boolean,
+   createdAt: string
 }
 
 export type AuthResponse = {

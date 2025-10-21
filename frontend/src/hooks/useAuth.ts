@@ -8,9 +8,16 @@ export const useAuth = () => {
 
    const fetchMe = async () => {
       try {
-         const { data } = await api.get("/user/me", {
+         const token = localStorage.getItem("accessToken");
+         if (!token) {
+            setUser(null);
+            setLoading(false);
+            return;
+         }
+         
+         const { data } = await api.get("/auth/me", {
             headers: {
-               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+               Authorization: `Bearer ${token}`,
             },
          });
          setUser(data.user);

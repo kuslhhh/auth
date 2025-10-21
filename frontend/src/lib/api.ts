@@ -12,14 +12,13 @@ api.interceptors.response.use(
       if (err.response?.status === 401 && !originalRequest._retry) {
          originalRequest._retry = true;
          try {
-            const { data } = await axios.post(
-               "http://localhost:5000/api/auth/refresh",
-               {},
-               { withCredentials: true }
-            );
-            originalRequest.headers["Authorization"] = `Bearer ${data.accessToken}`;
-            return axios(originalRequest);
+            const { data } = await api.post("/auth/refresh");
+            const newToken = data.accessToken;
+            localStorage.setItem("accessToken", newToken);
+            originalRequest.headers["Authorization"] = `Bearer ${newToken}`;
+            return api(originalRequest);
          } catch (_err) {
+            localStorage.removeItem("accessToken");
             return Promise.reject(_err);
          }
       }
