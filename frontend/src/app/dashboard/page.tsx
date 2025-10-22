@@ -37,10 +37,9 @@ export default function DashboardPage() {
                Logout
             </button>
          </div>
-         <div className="bg-gray-100 p-4 rounded-lg">
+         <div className="bg-zinc-800 p-4 rounded-lg">
             <p><strong>Email:</strong> {user.email}</p>
             <p><strong>Role:</strong> {user.role}</p>
-            <p><strong>Email Verified:</strong> {user.emailVerified ? 'Yes' : 'No'}</p>
             <p><strong>Member since:</strong> {new Date(user.createdAt).toLocaleDateString()}</p>
          </div>
       </div>
